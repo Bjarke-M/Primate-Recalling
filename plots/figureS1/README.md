@@ -1,1 +1,1 @@
-R notebook to recreate supplementary figure 1
+R notebook to recreate supplementary Figure S1
