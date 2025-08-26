@@ -23,8 +23,8 @@ ref_folder  = sys.argv[6]
 gvcf_folder = sys.argv[6]
 
 #### delete old folder and make new floder
-subprocess.run(["rm", "-fr", f"/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/gVCF/geno_beds_and_intervals/"])
-subprocess.run(["mkdir", "-p", f"/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/gVCF/geno_beds_and_intervals/"])
+subprocess.run(["rm", "-fr", f"~/{group}/gVCF/geno_beds_and_intervals/"])
+subprocess.run(["mkdir", "-p", f"~/{group}/gVCF/geno_beds_and_intervals/"])
 
 #### make metadata files for individual calling
 # for j in range(len(inds)):
@@ -43,11 +43,11 @@ subprocess.run(["mkdir", "-p", f"/faststorage/project/primatediversity/data/gVCF
 #             starts      = [start_list[ii] for ii in iis if ploidies_list[ii] == pl]
 #             ends        = [end_list[ii] for ii in iis if ploidies_list[ii] == pl]
 
-#             oo = open(f"/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/gVCF/geno_beds_and_intervals/{inds[j]}_batch_{batch}_ploidy_{pl}.bed", "w")
+#             oo = open(f"~/{group}/gVCF/geno_beds_and_intervals/{inds[j]}_batch_{batch}_ploidy_{pl}.bed", "w")
 #             oo.write("\n".join(chromosomes[jj] + "\t" + str(starts[jj] - 1) + "\t" + str(ends[jj]) for jj in range(len(chromosomes))))
 #             oo.close()
 
-#             oo = open(f"/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/gVCF/geno_beds_and_intervals/{inds[j]}_batch_{batch}_ploidy_{pl}.intervals", "w")
+#             oo = open(f"~/{group}/gVCF/geno_beds_and_intervals/{inds[j]}_batch_{batch}_ploidy_{pl}.intervals", "w")
 #             oo.write("\n".join(chromosomes[jj] + ":" + str(starts[jj]) + "-" + str(ends[jj]) for jj in range(len(chromosomes))))
 #             oo.close()
              
@@ -65,7 +65,7 @@ for batch in sorted(list(set(regions.batch))):
         starts      = [start_list[ii] for ii in iis if regions.female_ploidy.iloc[ii] == female_ploidies[j] and regions.male_ploidy.iloc[ii] == male_ploidies[j]]
         ends        = [end_list[ii] for ii in iis if regions.female_ploidy.iloc[ii] == female_ploidies[j] and regions.male_ploidy.iloc[ii] == male_ploidies[j]]
 
-        oo = open(f"/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/gVCF/geno_beds_and_intervals/genDB_{group}_batch_{batch}_fploidy_{female_ploidies[j]}_mploidy_{male_ploidies[j]}.intervals", "w")
+        oo = open(f"~/{group}/gVCF/geno_beds_and_intervals/genDB_{group}_batch_{batch}_fploidy_{female_ploidies[j]}_mploidy_{male_ploidies[j]}.intervals", "w")
         oo.write("\n".join(chromosomes[jj] + ":" + str(starts[jj]) + "-" + str(ends[jj]) for jj in range(len(chromosomes))))
         oo.close()
 
@@ -98,11 +98,11 @@ for batch in sorted(list(set(regions.batch))):
                 short_segment_ends.append(batch_ends[k])
 
         if len(chrs)>0:
-            oo = open(f"/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/gVCF/geno_beds_and_intervals/{group}_batch_{batch}_fploidy_{female_ploidies[j]}_mploidy_{male_ploidies[j]}_loc_{length_of_chunk}_subbatches.intervals", "w")
+            oo = open(f"~/{group}/gVCF/geno_beds_and_intervals/{group}_batch_{batch}_fploidy_{female_ploidies[j]}_mploidy_{male_ploidies[j]}_loc_{length_of_chunk}_subbatches.intervals", "w")
             oo.write("\n".join(chrs[sb] + ":" + str(sts[sb]) + "-" + str(ens[sb]) for sb in range(len(sts))))
             oo.close()
         
         if len(short_segments)>0:
-            oo = open(f"/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/gVCF/geno_beds_and_intervals/{group}_batch_{batch}_fploidy_{female_ploidies[j]}_mploidy_{male_ploidies[j]}_loc_{length_of_chunk}_short_segments.intervals", "w")
+            oo = open(f"~/{group}/gVCF/geno_beds_and_intervals/{group}_batch_{batch}_fploidy_{female_ploidies[j]}_mploidy_{male_ploidies[j]}_loc_{length_of_chunk}_short_segments.intervals", "w")
             oo.write("\n".join(short_segments[sb] + ":" + str(short_segment_starts[sb]) + "-" + str(short_segment_ends[sb]) for sb in range(len(short_segment_starts))))
             oo.close()
