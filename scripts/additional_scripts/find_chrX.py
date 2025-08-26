@@ -65,7 +65,7 @@ parser = argparse.ArgumentParser(description="")
 
 
 parser.add_argument('-c', '--contigs', type=str, help='path to the file with special contigs (chrX, chrY and chrM)', 
-	default = '~/primatediversity/people/vasili/workflow_recalling/special_contigs')
+	default = '~/special_contigs')
 
 parser.add_argument('-s', '--subset', type=str, help='path to the file with the subset of samples', required=True)
 
