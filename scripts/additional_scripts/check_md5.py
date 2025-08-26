@@ -20,7 +20,7 @@ if expected_md5 == observed_md5:
     os.system(f"""
             echo "Download succesful: {path_to_run_accession.split("/")[-1]}" > {path_to_run_accession}.message
 
-            touch /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/done/{job_name}
+            touch ~/{group}/done/{job_name}
             """)
 else:
     os.system(f"""
