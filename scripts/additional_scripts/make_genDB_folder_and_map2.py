@@ -15,4 +15,4 @@ subprocess.run(f'''mkdir -p {folder_name}/''', shell=True, text=True)
 
 #### create cohort file
 pd.DataFrame({"IND_ID" : inds,
-              "path"   : [f"/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{groups[ii]}/gVCF/{inds[ii]}_batch_{batch}_ploidy_{ploidies[ii]}.gvcf.gz" for ii in range(len(inds))]}).to_csv(f"{folder_name}/cohort.sample_map", sep='\t', header=False, index=False)
+              "path"   : [f"~/{groups[ii]}/gVCF/{inds[ii]}_batch_{batch}_ploidy_{ploidies[ii]}.gvcf.gz" for ii in range(len(inds))]}).to_csv(f"{folder_name}/cohort.sample_map", sep='\t', header=False, index=False)
