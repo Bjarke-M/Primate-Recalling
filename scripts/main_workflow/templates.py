@@ -97,7 +97,7 @@ def make_regions(refFolder, input, done_prev, done):
     options = default_options.copy()
 
     spec = job_header+'''
-    python /faststorage/project/primatediversity/people/juraj/python_scripts/make_regions_file.py {refFolder} {chrs}
+    python ~additional_scripts/make_regions_file.py {refFolder} {chrs}
     touch {done}
     '''.format(refFolder = refFolder, chrs = input.split(".f")[0] + "_LargerThan1000bp.fasta.fai", done=done)
 
@@ -126,11 +126,11 @@ def download_pe2(srr, out, done):
 def download_per_individual(group, ind, run_accessions, md5s, done):
     """Download paired end fastq reads."""
     inputs = []
-    outputs = [done] + ["/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/" + group + "/done/download_pe2_" + group + "_" + run_accession.replace("/", "_") for run_accession in run_accessions.split(",")]
+    outputs = [done] + ["~/" + group + "/done/download_pe2_" + group + "_" + run_accession.replace("/", "_") for run_accession in run_accessions.split(",")]
     options = {'cores': 1, 'memory': '8g', 'walltime': "06:00:00", 'account':"primatediversity"}
 
     spec = job_header+f"""
-    python /faststorage/project/primatediversity/people/juraj/python_scripts/download_fastq_per_individual_check_md5.py {group} {ind} {run_accessions} {md5s}
+    python ~additional_scripts/download_fastq_per_individual_check_md5.py {group} {ind} {run_accessions} {md5s}
     """
 
     return AnonymousTarget(inputs = inputs, outputs = outputs, options=options, spec = spec)
@@ -209,7 +209,7 @@ def concatfastqs(group, ind, fastqs_1, fastqs_2, prev_done, done):
     # options   = default_options.copy()
     options = {'cores': 1, 'memory': '8g', 'walltime': "06:00:00", 'account':"primatediversity"}
     spec      = job_header+f'''
-    out_dir=/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/fastq
+    out_dir=~/{group}/fastq
 
     mkdir -p ${{out_dir}}
 
@@ -233,7 +233,7 @@ def renamefastqs(group, ind, fastq_1, fastq_2, prev_done, done):
     # options   = default_options.copy()
     options = {'cores': 1, 'memory': '8g', 'walltime': "06:00:00", 'account':"primatediversity"}
     spec      = job_header+f'''
-    out_dir=/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/fastq
+    out_dir=~/{group}/fastq
 
     mkdir -p ${{out_dir}}
 
@@ -252,13 +252,13 @@ def makeuBAM(group, ind, fastq1, fastq2, prev_done, done):
     outputs = [done]
     options = {"cores" : 1, 'memory': "8g", 'walltime': "1-00:00:00", 'account': "primatediversity"}
     spec    = job_header+f"""
-    out_dir=/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam
+    out_dir=~/{group}/bam
 
     mkdir -p ${{out_dir}}
 
-    java -Xmx4g -jar /faststorage/project/primatediversity/people/gatkshared/share/picard-3.1.1-0/picard.jar FastqToSam --FASTQ  {fastq1}                                          \
+    java -Xmx4g -jar ~/picard-3.1.1-0/picard.jar FastqToSam --FASTQ  {fastq1}                                          \
                       --FASTQ2 {fastq2}                                          \
-                      --OUTPUT /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/u{ind}.bam \
+                      --OUTPUT ~/{group}/bam/u{ind}.bam \
                       --SAMPLE_NAME {ind}                                        \
                       --QUALITY_FORMAT Standard \
                       --TMP_DIR /scratch/$SLURM_JOB_ID
@@ -276,18 +276,18 @@ def splituBAM(group, ind, prev_done, done):
     outputs = [done]
     options = default_options.copy()
     spec    = job_header+f"""
-    splitubamdir=/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}
+    splitubamdir=~/{group}/bam/split_uBAM{ind}
     rm    -fr ${{splitubamdir}}
     mkdir -p  ${{splitubamdir}} 
 
-    picard SplitSamByNumberOfReads -I /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/u{ind}.bam \
+    picard SplitSamByNumberOfReads -I ~/{group}/bam/u{ind}.bam \
                                    -O ${{splitubamdir}}                \
                                    --CREATE_INDEX true                 \
                                    -N_READS 48000000
 
-    ls ${{splitubamdir}} | wc -l > /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_nsplitubams.txt
+    ls ${{splitubamdir}} | wc -l > ~/{group}/bam/{ind}_nsplitubams.txt
     
-    rm /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/u{ind}.bam
+    rm ~/{group}/bam/u{ind}.bam
     
     touch {done}
     """
@@ -301,14 +301,14 @@ def further_splituBAM(group, ind, shard_path, shard, n_reads, prev_done, done):
     outputs = [done]
     options = default_options.copy()
     spec    = job_header+f"""
-    mkdir -p /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}_shard_{shard}
+    mkdir -p ~/{group}/bam/split_uBAM{ind}_shard_{shard}
 
     picard SplitSamByNumberOfReads -I {shard_path} \
-                                   -O /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}_shard_{shard} \
+                                   -O ~/{group}/bam/split_uBAM{ind}_shard_{shard} \
                                    --CREATE_INDEX true                 \
                                    -N_READS {n_reads}
 
-    ls /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}_shard_{shard} | wc -l > /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_shard_{shard}_nsplitubams.txt
+    ls ~/{group}/bam/split_uBAM{ind}_shard_{shard} | wc -l > ~/{group}/bam/{ind}_shard_{shard}_nsplitubams.txt
         
     touch {done}
     """
@@ -332,12 +332,12 @@ def markadapt(group, ind, shard, prev_done, done):
     outputs = [done]
     options = default_options.copy()
     spec = job_header+f"""
-    picard MarkIlluminaAdapters -I /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}/shard_{shard}.bam           \
-                                -O /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt.bam \
-                                -M /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt.txt \
+    picard MarkIlluminaAdapters -I ~/{group}/bam/split_uBAM{ind}/shard_{shard}.bam           \
+                                -O ~/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt.bam \
+                                -M ~/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt.txt \
                                 --TMP_DIR /scratch/$SLURM_JOB_ID
 
-    rm -f /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/u{ind}.bam
+    rm -f ~/{group}/bam/u{ind}.bam
     touch {done}
     """
     return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
@@ -351,7 +351,7 @@ def mapBAM(group, ind, shard, ref, prev_done, done):
     # options = default_options.copy()
     options = {"cores" : 1, 'memory': "16g", 'walltime': "1-00:00:00", 'account': "primatediversity"}
     spec = job_header+f"""
-    picard SamToFastq -I           /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt.bam       \
+    picard SamToFastq -I           ~/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt.bam       \
                       --FASTQ      /dev/stdout                                                        \
                       --INTERLEAVE true                                                               \
                       --TMP_DIR    /scratch/$SLURM_JOB_ID                                             \
@@ -360,14 +360,14 @@ def mapBAM(group, ind, shard, ref, prev_done, done):
                   -p {ref}              \
                   /dev/stdin            \
         | picard MergeBamAlignment --ALIGNED_BAM                  /dev/stdin                                                          \
-                                   --UNMAPPED_BAM                 /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt.bam        \
-                                   --OUTPUT                       /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt_mapped.bam \
+                                   --UNMAPPED_BAM                 ~/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt.bam        \
+                                   --OUTPUT                       ~/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt_mapped.bam \
                                    -R                             {ref}                                                               \
                                    --CREATE_INDEX                 true                                                                \
                                    --INCLUDE_SECONDARY_ALIGNMENTS false                                                               \
                                    --TMP_DIR                      /scratch/$SLURM_JOB_ID
 
-    rm -f /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}/shard_{shard}.bam
+    rm -f ~/{group}/bam/split_uBAM{ind}/shard_{shard}.bam
     touch {done}
     """
     return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
@@ -382,11 +382,11 @@ def mergeBAMs(group, ind, bams, prev_done, done):
     options = {"cores": 1, 'memory': "16g", 'walltime': "1-00:00:00", 'account': "primatediversity"}
     spec = job_header+f"""
     picard MergeSamFiles {" ".join([f"-I {bam} " for bam in bams])}                  \
-                         -O /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged.bam  \
+                         -O ~/{group}/bam/{ind}_markadapt_mapped_merged.bam  \
                          --SORT_ORDER   queryname                                    \
                          --TMP_DIR      /scratch/$SLURM_JOB_ID
 
-    rm -f /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}/shard_*_markadapt.bam
+    rm -f ~/{group}/bam/split_uBAM{ind}/shard_*_markadapt.bam
     touch {done}
     """
     return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
@@ -419,11 +419,11 @@ def merge_further_split_BAMs(group, ind, bams, shard, prev_done, done):
     options = {"cores": 1, 'memory': "16g", 'walltime': "1-00:00:00", 'account': "primatediversity"}
     spec = job_header+f"""
     picard MergeSamFiles {" ".join([f"-I {bam} " for bam in bams])}                  \
-                         -O /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt_mapped.bam  \
+                         -O ~/{group}/bam/split_uBAM{ind}/shard_{shard}_markadapt_mapped.bam  \
                          --SORT_ORDER   queryname                                    \
                          --TMP_DIR      /scratch/$SLURM_JOB_ID
 
-    rm -f /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}/shard_*_markadapt.bam
+    rm -f ~/{group}/bam/split_uBAM{ind}/shard_*_markadapt.bam
     touch {done}
     """
     return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
@@ -437,16 +437,16 @@ def markduplicates(group, ind, prev_done, done):
     # options = default_options.copy()
     options = {"cores": 1, 'memory': "16g", 'walltime': "12:00:00", 'account': "primatediversity"}
     spec = job_header+f"""
-    picard MarkDuplicates -I /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged.bam                \
-                          -M /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates.txt \
-                          -O /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates.bam \
+    picard MarkDuplicates -I ~/{group}/bam/{ind}_markadapt_mapped_merged.bam                \
+                          -M ~/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates.txt \
+                          -O ~/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates.bam \
                           --REMOVE_DUPLICATES true                                                  \
                           --CREATE_INDEX true                                                       \
                           --TMP_DIR /scratch/$SLURM_JOB_ID
 
-    rm -fr /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/split_uBAM{ind}
-    rm -f /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates.txt
-    rm /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged.bam
+    rm -fr ~/{group}/bam/split_uBAM{ind}
+    rm -f ~/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates.txt
+    rm ~/{group}/bam/{ind}_markadapt_mapped_merged.bam
     touch {done}
     """
     return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
@@ -459,13 +459,13 @@ def coordsort(group, ind, prev_done, done):
     outputs = [done]
     options = default_options.copy()
     spec = job_header+f"""
-    picard SortSam -I /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates.bam           \
-                   -O /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates_coordsort.bam \
+    picard SortSam -I ~/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates.bam           \
+                   -O ~/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates_coordsort.bam \
                    -SO coordinate                                                                      \
                    --CREATE_INDEX true                                                                 \
                    --TMP_DIR /scratch/$SLURM_JOB_ID
 
-    rm -f /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates.bam
+    rm -f ~/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates.bam
     touch {done}
     """
     return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
@@ -478,7 +478,7 @@ def cov(group, ind, regions, chromosomes, starts, ends, prev_done, done):
     outputs = [done]
     options = default_options.copy()
     spec = job_header+f"""
-    covdir=/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/cov
+    covdir=~/{group}/cov
     rm    -f ${{covdir}}/{ind}.cov
     mkdir -p  ${{covdir}} 
 
@@ -498,7 +498,7 @@ def cov(group, ind, regions, chromosomes, starts, ends, prev_done, done):
         echo ${{region}} ${{chrom}}
         date
 
-        samtools depth -r ${{chrom}}:${{start}}-${{end}} /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates_coordsort.bam \
+        samtools depth -r ${{chrom}}:${{start}}-${{end}} ~/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates_coordsort.bam \
             | awk '{{sum += $3}} END {{if(sum == 0 || NR == 0){{cov=0}}else{{cov=sum/NR}};print "'${{region}}'\t'${{chrom}}'\t'${{start}}'\t'${{end}}'\t"NR"\t"sum"\t"cov}}' >> ${{covdir}}/{ind}.cov
 
     done
@@ -515,7 +515,7 @@ def cov(group, ind, regions, chromosomes, starts, ends, prev_done, done):
     outputs = [done]
     options = default_options.copy()
     spec = job_header+f"""
-    covdir=/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/cov
+    covdir=~/{group}/cov
     rm    -f ${{covdir}}/{ind}.cov
     mkdir -p  ${{covdir}} 
 
@@ -535,7 +535,7 @@ def cov(group, ind, regions, chromosomes, starts, ends, prev_done, done):
         echo ${{region}} ${{chrom}}
         date
 
-        samtools depth -r ${{chrom}}:${{start}}-${{end}} /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates_coordsort.bam \
+        samtools depth -r ${{chrom}}:${{start}}-${{end}} ~/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates_coordsort.bam \
             | awk '{{sum += $3}} END {{if(sum == 0 || NR == 0){{cov=0}}else{{cov=sum/NR}};print "'${{region}}'\t'${{chrom}}'\t'${{start}}'\t'${{end}}'\t"NR"\t"sum"\t"cov}}' >> ${{covdir}}/{ind}.cov
 
     done
@@ -552,7 +552,7 @@ def cov_batched(group, ind,  batch, regions, chromosomes, starts, ends, prev_don
     outputs = [done]
     options = default_options.copy()
     spec = job_header+f"""
-    covdir=/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/cov
+    covdir=~/{group}/cov
     rm    -f ${{covdir}}/{ind}.cov
     mkdir -p  ${{covdir}} 
 
@@ -572,7 +572,7 @@ def cov_batched(group, ind,  batch, regions, chromosomes, starts, ends, prev_don
         echo ${{region}} ${{chrom}}
         date
 
-        samtools depth -r ${{chrom}}:${{start}}-${{end}} /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates_coordsort.bam \
+        samtools depth -r ${{chrom}}:${{start}}-${{end}} ~/{group}/bam/{ind}_markadapt_mapped_merged_markduplicates_coordsort.bam \
             | awk '{{sum += $3}} END {{if(sum == 0 || NR == 0){{cov=0}}else{{cov=sum/NR}};print "'${{region}}'\t'${{chrom}}'\t'${{start}}'\t'${{end}}'\t"NR"\t"sum"\t"cov}}' >> ${{covdir}}/{ind}_batch_{batch}.cov
 
     done
@@ -608,7 +608,7 @@ def find_chrX(subset_file, ref_folder, contigs, minlen, prev_done, done):
     options = default_options.copy()
 
     spec = job_header + f'''
-    python /faststorage/project/primatediversity/people/juraj/python_scripts/find_chrX.py -s {subset_file} -r {ref_folder} -c {contigs} -m {minlen}
+    python ~additional_scripts/find_chrX.py -s {subset_file} -r {ref_folder} -c {contigs} -m {minlen}
   
     touch {done}
     '''
@@ -620,7 +620,7 @@ def make_simplified_batch_file(regions_file, ref_folder, prev_done, done):
     options = default_options.copy()
 
     spec = job_header + f'''
-    python /faststorage/project/primatediversity/people/juraj/python_scripts/make_simplified_batch_file.py {regions_file} {ref_folder}
+    python ~additional_scripts/make_simplified_batch_file.py {regions_file} {ref_folder}
   
     touch {done}
     '''
@@ -663,7 +663,7 @@ def call_batch(group, ind, batch, chromosomes, starts, ends, ref, ploidy, prev_d
             """.format(bed="\n".join(chromosomes[j] + "\t" + str(starts[j] - 1) + "\t" + str(ends[j]) for j in range(len(chromosomes))),
                        group=group, ind=ind, batch=batch, ref=ref, ploidy=ploidy, cores=options["cores"],
                        regions=" -L ".join(chromosomes[j] + ":" + str(starts[j]) + "-" + str(ends[j]) for j in range(len(chromosomes))),
-                       dir="/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/" + group + "/",
+                       dir="~/" + group + "/",
                        done=done)
 
     return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
@@ -675,7 +675,7 @@ def make_batch_metadata(loc, group, regions_file, inds, sexes, ref_folder, prev_
     options = {"cores": 1, 'memory': "8g", 'walltime': "00:05:00", 'account': "primatediversity"}
 
     spec = job_header + f'''
-    python /faststorage/project/primatediversity/people/juraj/python_scripts/make_loc_metadata.py {loc} {group} {regions_file} {inds} {sexes} {ref_folder}
+    python ~additional_scripts/make_loc_metadata.py {loc} {group} {regions_file} {inds} {sexes} {ref_folder}
   
     touch {done}
     '''
@@ -687,7 +687,7 @@ def make_geno_metadata(loc, group, regions_file, inds, sexes, ref_folder, prev_d
     options = {"cores": 1, 'memory': "8g", 'walltime': "01:00:00", 'account': "primatediversity"}
 
     spec = job_header + f'''
-    python /faststorage/project/primatediversity/people/juraj/python_scripts/make_geno_metadata.py {loc} {group} {regions_file} {inds} {sexes} {ref_folder}
+    python ~additional_scripts/make_geno_metadata.py {loc} {group} {regions_file} {inds} {sexes} {ref_folder}
   
     touch {done}
     '''
@@ -730,7 +730,7 @@ def call_batch_with_bed(group, ind, batch, bed, intervals, ref, ploidy, prev_don
             """.format(bed=bed,
                        group=group, ind=ind, batch=batch, ref=ref, ploidy=ploidy, cores=options["cores"],
                        intervals=intervals,
-                       dir="/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/" + group + "/",
+                       dir="~/" + group + "/",
                        done=done)
 
     return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
@@ -741,7 +741,7 @@ def make_genDB_folder_and_map(group, batch, inds, ploidies, folder_name, prev_do
     options = {"cores": 1, 'memory': "8g", 'walltime': "00:05:00", 'account': "primatediversity"}
 
     spec = job_header + '''
-    python /faststorage/project/primatediversity/people/juraj/python_scripts/make_genDB_folder_and_map2.py {group} {batch} {inds} {ploidies} {folder_name}
+    python ~additional_scripts/make_genDB_folder_and_map2.py {group} {batch} {inds} {ploidies} {folder_name}
   
     touch {done}
     '''.format(group=group, batch=batch, inds=inds, ploidies=ploidies, folder_name=folder_name, done=done)
@@ -757,7 +757,7 @@ def make_genDB_with_bed(group, batch, fploidy, mploidy, intervals, prev_done, do
     # options = default_options.copy()
     options = {"cores" : 1, 'memory': "200g", 'walltime': "72:00:00", 'account': "primatediversity"}
     spec = job_header + """
-    gatk GenomicsDBImport --sample-name-map                         /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/cohort.sample_map \
+    gatk GenomicsDBImport --sample-name-map                         ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/cohort.sample_map \
                           --genomicsdb-workspace-path               /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}   \
                           --tmp-dir                                 /scratch/$SLURM_JOB_ID      \
                           --genomicsdb-shared-posixfs-optimizations true                        \
@@ -769,9 +769,9 @@ def make_genDB_with_bed(group, batch, fploidy, mploidy, intervals, prev_done, do
 
     chmod -R 777 /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
 
-    rm -rf /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
+    rm -rf ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
 
-    mv /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy} /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
+    mv /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy} ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
 
     touch {done}
     """.format(group=group, batch=batch, fploidy = fploidy, mploidy = mploidy, done=done, cores=options["cores"],
@@ -789,7 +789,7 @@ def make_genDB_short_segments_subbatch(group, batch, fploidy, mploidy, subbatch,
     spec = job_header + """
     sed -n '{fr},{to}p' {intervals} > /scratch/$SLURM_JOB_ID/intervals.intervals
     
-    gatk GenomicsDBImport --sample-name-map                         /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/cohort.sample_map \
+    gatk GenomicsDBImport --sample-name-map                         ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/cohort.sample_map \
                           --genomicsdb-workspace-path               /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch}  \
                           --tmp-dir                                 /scratch/$SLURM_JOB_ID      \
                           --genomicsdb-shared-posixfs-optimizations true                        \
@@ -801,9 +801,9 @@ def make_genDB_short_segments_subbatch(group, batch, fploidy, mploidy, subbatch,
 
     chmod -R 777 /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch}
 
-    rm -rf /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch}
+    rm -rf ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch}
 
-    mv /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch} /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch}
+    mv /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch} ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch}
 
     touch {done}
     """.format(group=group, batch=batch, fploidy = fploidy, mploidy = mploidy, done=done, cores=options["cores"],
@@ -819,9 +819,9 @@ def make_genDB_subbatch_with_bed(group, batch, fploidy, mploidy, subbatch, inter
     # options = default_options.copy()
     options = {"cores" : 1, 'memory': "8g", 'walltime': "06:00:00", 'account': "primatediversity"}
     spec = job_header + """
-    mkdir -p /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}/
+    mkdir -p ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}/
 
-    gatk GenomicsDBImport --sample-name-map                         /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/cohort.sample_map \
+    gatk GenomicsDBImport --sample-name-map                         ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/cohort.sample_map \
                           --genomicsdb-workspace-path               /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}   \
                           --tmp-dir                                 /scratch/$SLURM_JOB_ID      \
                           --genomicsdb-shared-posixfs-optimizations true                        \
@@ -833,9 +833,9 @@ def make_genDB_subbatch_with_bed(group, batch, fploidy, mploidy, subbatch, inter
 
     chmod -R 777 /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch} 
 
-    rm -rf /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}
+    rm -rf ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}
 
-    mv /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch} /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}
+    mv /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch} ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}
 
     touch {done}
     """.format(group=group, batch=batch, fploidy = fploidy, mploidy = mploidy, done=done, cores=options["cores"], subbatch = subbatch,
@@ -851,7 +851,7 @@ def GenotypeGVCFs_subbatch(group, batch, fploidy, mploidy, subbatch, chromosome,
     outputs = [done]
     options = {"cores": cores, 'memory': memory, 'walltime': "1-00:00:00", 'account': "primatediversity"}
     spec = job_header + """
-    cp -r /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
+    cp -r ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
 
     gatk GenotypeGVCFs --include-non-variant-sites                                                                \
                        -R                                 {ref}                                                   \
@@ -878,7 +878,7 @@ def GenotypeGVCFs_subbatch_with_bed(group, batch, fploidy, mploidy, subbatch, in
     outputs = [done]
     options = {"cores": cores, 'memory': memory, 'walltime': "1-00:00:00", 'account': "primatediversity"}
     spec = job_header + """
-    cp -r /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
+    cp -r ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
 
     gatk GenotypeGVCFs --include-non-variant-sites                                                                \
                        -R                                 {ref}                                                   \
@@ -905,7 +905,7 @@ def GenotypeGVCFs_subbatch_with_bed_new(group, batch, fploidy, mploidy, subbatch
     outputs = [done]
     options = {"cores": cores, 'memory': memory, 'walltime': "1-00:00:00", 'account': "primatediversity"}
     spec = job_header + """
-    cp -r /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}
+    cp -r ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}
 
     gatk GenotypeGVCFs --include-non-variant-sites                                                                \
                        -R                                 {ref}                                                   \
@@ -919,7 +919,7 @@ def GenotypeGVCFs_subbatch_with_bed_new(group, batch, fploidy, mploidy, subbatch
     chmod -R 777 /scratch/$SLURM_JOB_ID/{group}_batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}_gt.gvcf.gz
     mv /scratch/$SLURM_JOB_ID/{group}_batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}_gt.gvcf.gz {out}
     
-    rm -r /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}
+    rm -r ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_subbatch_{subbatch}
 
     touch {done}
     """.format(group=group, batch=batch, fploidy=fploidy, mploidy=mploidy, subbatch=subbatch,  ref=ref, done = done,  out = out,
@@ -934,7 +934,7 @@ def GenotypeGVCFs(group, batch, fploidy, mploidy, chromosomes, starts, ends, out
     outputs = [done]
     options = {"cores": cores, 'memory': memory, 'walltime': "1-00:00:00", 'account': "primatediversity"}
     spec = job_header + """
-    cp -r /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
+    cp -r ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
 
     gatk GenotypeGVCFs --include-non-variant-sites                                                                \
                        -R                                 {ref}                                                   \
@@ -958,7 +958,7 @@ def GenotypeGVCFs_with_bed(group, batch, fploidy, mploidy, intervals, out, ref, 
     outputs = [done]
     options = {"cores": cores, 'memory': memory, 'walltime': "1-00:00:00", 'account': "primatediversity"}
     spec = job_header + """
-    cp -r /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
+    cp -r ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
 
     gatk GenotypeGVCFs --include-non-variant-sites                                                                \
                        -R                                 {ref}                                                   \
@@ -983,7 +983,7 @@ def GenotypeGVCFs_short_segments_subbatch(group, batch, fploidy, mploidy, subbat
     options = {"cores": cores, 'memory': memory, 'walltime': "1-00:00:00", 'account': "primatediversity"}
     spec = job_header + """
     sed -n '{fr},{to}p' {intervals} > /scratch/$SLURM_JOB_ID/intervals.intervals
-    cp -r /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch}
+    cp -r ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch} /scratch/$SLURM_JOB_ID/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_short_segments_subbatch_{subbatch}
     
     gatk GenotypeGVCFs --include-non-variant-sites                                                                \
                        -R                                 {ref}                                                   \
@@ -1024,7 +1024,7 @@ def picardconcat(vcfs, vcf, prev_done, done):
     options = default_options.copy()
     spec = job_header+"""
 
-    java -Xmx4g -jar /faststorage/project/primatediversity/people/gatkshared/share/picard-3.1.1-0/picard.jar SortVcf -I {vcfs} -O {vcf}
+    java -Xmx4g -jar ~/picard-3.1.1-0/picard.jar SortVcf -I {vcfs} -O {vcf}
 
     rm -f {rmvcfs}
 
@@ -1058,64 +1058,10 @@ def IndexGVCFs(group, batch, fploidy, mploidy, prev_done, done):
     options = default_options.copy()
 
     spec = job_header + f"""
-    gatk IndexFeatureFile -I /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/gVCF/{group}_batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_gt.gvcf.gz
+    gatk IndexFeatureFile -I ~/{group}/gVCF/{group}_batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}_gt.gvcf.gz
 
-    rm -fr /faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
-
-    touch {done}
-    """
-    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
-
-"""
-------------------------------------------------------------------------------------------------------------------------
-E. CLEAN UP
-------------------------------------------------------------------------------------------------------------------------
-"""
-
-def bam_to_cram(path_to_bam_folder, ind, ref, done):
-    """Convert bam to cram."""
-    inputs = []
-    outputs = [done]
-    options = {'cores': 1, 'memory': "8g", 'walltime': "12:00:00", 'account':"primatediversity"}
-
-    spec = f"""
-    samtools view -C -T {ref} -o {path_to_bam_folder}/{ind}_markadapt_mapped_merged_markduplicates_coordsort.cram {path_to_bam_folder}/{ind}_markadapt_mapped_merged_markduplicates_coordsort.bam
-    samtools index {path_to_bam_folder}/{ind}_markadapt_mapped_merged_markduplicates_coordsort.cram
-    
-    rm -f {path_to_bam_folder}/{ind}_markadapt_mapped_merged_markduplicates_coordsort.bam
-    rm -f {path_to_bam_folder}/{ind}_markadapt_mapped_merged_markduplicates_coordsort.bai
-
-    rm -f {path_to_bam_folder}/u{ind}.bam
-    rm -f {path_to_bam_folder}/{ind}_nsplitubams.txt
+    rm -fr ~/{group}/GenomicsDB/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}/batch_{batch}_fploidy_{fploidy}_mploidy_{mploidy}
 
     touch {done}
     """
-    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
-
-def cram_to_bam(path_to_input_cram_file, path_to_output_bam_file, path_to_output_bai_file, ref, done):
-    """Convert cram to bam."""
-    inputs = []
-    outputs = [done]
-    options = {'cores': 1, 'memory': "8g", 'walltime': "12:00:00", 'account':"primatediversity"}
-
-    spec = f"""
-    samtools view -b -T {ref} -o {path_to_output_bam_file} {path_to_input_cram_file}
-    samtools index {path_to_output_bam_file} {path_to_output_bai_file}
-    touch {done}
-    """
-    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
-
-def removeIndGVCFs(cohort_map, prev_done, done):
-    '''
-    Remove un-genotyped individual-based GVCFs.
-    '''
-        
-    inputs = [prev_done]
-    outputs = [done]
-    options = {"cores": 1, 'memory': "8g", 'walltime': "00:05:00", 'account': "primatediversity"}
-
-    spec = job_header + f'''
-    python /faststorage/project/primatediversity/people/juraj/python_scripts/removeIndGVCFs.py {cohort_map}
-    touch {done}
-    '''
     return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
