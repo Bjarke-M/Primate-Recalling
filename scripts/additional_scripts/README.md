@@ -1,1 +1,1 @@
-Additional scripts needed to run the pipeline.
+Additional scripts and files needed to run the pipeline.
