@@ -84,14 +84,14 @@ min_chr_len = args.minlen
 
 
 # There are also species and reference specufic file that follow a standard file naming. For now I keep them fixed but we can always make them as input parameters
-cov_files = '~/primatediversity/data/gVCFs_recalling_10_12_2024/{species}/cov/{id}.cov'
-region_files = '~/primatediversity/data/gVCFs_recalling_10_12_2024/{ref}/ref/regions_{ref}.txt'
+cov_files = '~/{species}/cov/{id}.cov'
+region_files = '~/{ref}/ref/regions_{ref}.txt'
 
 # Outputs:
 # the file below is the main output of the script. There are cases when it is not written for a given reference. That is a signal to read the logs!
-updated_region_file =  '~/primatediversity/data/gVCFs_recalling_10_12_2024/{ref}/ref/regions_{ref}_updated.txt'
-# samples_out_file = '~/primatediversity/data/gVCFs_recalling_10_12_2024/{ref}/ref/samples_with_potentially_wrong_sex.txt'
-coverage_stats_out_file = '~/primatediversity/data/gVCFs_recalling_10_12_2024/{ref}/ref/samples_coverage_stats.txt'
+updated_region_file =  '~/{ref}/ref/regions_{ref}_updated.txt'
+# samples_out_file = '~/{ref}/ref/samples_with_potentially_wrong_sex.txt'
+coverage_stats_out_file = '~/{ref}/ref/samples_coverage_stats.txt'
 
 
 # this is a dummy variable which will be turned to False if the reported chrX has a non chrX coverange pattern
