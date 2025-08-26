@@ -18,7 +18,7 @@ for i in range(regions.shape[0]):
     if str(batches[i])+"\t"+str(female_ploidy[i])+"\t"+str(male_ploidy[i])+"\n" not in lines:
         lines.append(str(batches[i])+"\t"+str(female_ploidy[i])+"\t"+str(male_ploidy[i])+"\n")
 
-oo = open("/faststorage/project/primatediversity/data/gVCFs_recalling_10_12_2024/"+ref_folder+"/ref/batches_"+ref_folder+".txt", "w")
+oo = open("~/"+ref_folder+"/ref/batches_"+ref_folder+".txt", "w")
 oo.write("batch\tfemale_ploidy\tmale_ploidy\n")
 for line in lines:
     oo.write(line)
