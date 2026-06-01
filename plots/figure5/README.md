@@ -1,1 +1,1 @@
-Script to recreate Figure 6.
+Script to recreate Figure 5.
