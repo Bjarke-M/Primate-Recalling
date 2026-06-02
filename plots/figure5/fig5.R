@@ -6,7 +6,7 @@ library(readr)
 library(patchwork)
 
 # ---- paths ----------------------------------------------------------------
-BASE_DIR    <- "~alnRegionHet/"
+BASE_DIR    <- "~data/alnRegionHet/"
 SAMPLE_META <- "~SupTable_Sample_Stats_wGT_QC.tsv"
 OUT_PLOT    <- "~fig_5.pdf"
 
