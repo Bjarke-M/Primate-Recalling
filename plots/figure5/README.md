@@ -10,7 +10,7 @@ Takes a chain file (gzipped or not) and outputs three BED files:
 For each species, loops over  BED files and computes total length per chromosome per bed and writes a table with columns:
   SPECIES, BATCH, FPLOIDY, MPLOIDY, BED_TYPE, CHR, N_CALLABLE
 
-#### alnRegionHet.zip
+#### data/alnRegionHet.zip
 Contains outputs of chain_to_beds.py and callable_regions.py for each species.
 
 #### fig5.R
