@@ -1,6 +1,16 @@
-Here is the workflow to calculate the heterozygosity per base pair per chromosome per sample and use plink to detect runs of homozygosity per sample.
-The workflow outputs csv files.
-These csv files are needed to create figure 2.
-The functions called in the workflow.py file are found in templates.py.
-The packages needed for the workflow are in the primate_stats.yaml.
-The scripts associated with the template rules are here as well.
+# heterozygosity_and_runs_of_homozygosity
+
+Per-sample heterozygosity per chromosome and PLINK-based detection of runs of homozygosity. Outputs CSV tables consumed by Figure 2.
+
+## Files
+
+- `workflow.py` — GWF workflow.
+- `templates.py` — template functions used by the workflow.
+- `het_stats.py` — heterozygosity calculation per base pair per chromosome.
+- `roh_stats.py` — runs-of-homozygosity statistics from PLINK output.
+- `primate_stats.yaml` — conda environment specification.
+
+## Use
+
+1. Create the environment: `conda env create -f primate_stats.yaml` and activate it.
+2. From this directory, run `gwf run`.

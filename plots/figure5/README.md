@@ -1,17 +1,16 @@
-Scripts and data to recreate Figure 5.
+# figure5
 
-#### chain_to_beds.py
-Takes a chain file (gzipped or not) and outputs three BED files:
-  - <prefix>.unique.bed      : positions covered by exactly 1 chain
-  - <prefix>.nonunique.bed   : positions covered by >1 chains
-  - <prefix>.noalign.bed     : positions not covered by any chain
+Callable regions from chain-file alignments (Figure 5).
 
-#### callable_regions.py
-For each species, loops over  BED files and computes total length per chromosome per bed and writes a table with columns:
-  SPECIES, BATCH, FPLOIDY, MPLOIDY, BED_TYPE, CHR, N_CALLABLE
+## Scripts
 
-#### data/alnRegionHet.zip
-Contains outputs of chain_to_beds.py and callable_regions.py for each species.
+- `chain_to_beds.py` — takes a chain file (gzipped or plain) and writes three BED files:
+  - `<prefix>.unique.bed` — positions covered by exactly one chain.
+  - `<prefix>.nonunique.bed` — positions covered by more than one chain.
+  - `<prefix>.noalign.bed` — positions not covered by any chain.
+- `callable_regions.py` — for each species, sums BED interval lengths per chromosome and per BED type. Output columns: `SPECIES, BATCH, FPLOIDY, MPLOIDY, BED_TYPE, CHR, N_CALLABLE`.
+- `fig5.R` — plots Figure 5.
 
-#### fig5.R
-Plots Figure 5.
+## Data
+
+- `../data/alnRegionHet.zip` — per-species outputs of `chain_to_beds.py` and `callable_regions.py`.
