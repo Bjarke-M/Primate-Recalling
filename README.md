@@ -21,5 +21,5 @@ Each subdirectory contains its own README with details on contents and use.
 
 1. Set up the environment in `scripts/main_workflow/env.yaml`.
 2. Run the main GWF workflow in `scripts/main_workflow/` to produce BAMs and joint-genotyped VCFs.
-3. Run the per-sample analyses in `scripts/heterozygosity_and_runs_of_homozygosity/` and `scripts/annotate_sex_chr/`.
+3. Run the per-sample analyses in `scripts/annotate_sex_chr/`.
 4. Use the notebooks in `plots/` to regenerate the figures from the resulting tables.
