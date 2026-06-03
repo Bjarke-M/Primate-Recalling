@@ -1,0 +1,7 @@
+Gorilla_gorilla_ssp
+Pan_troglodytes_ssp
+Pan_paniscus_ssp
+Pongo_abelii_ssp
+Pongo_pygmaeus_ssp
+Symphalangus_syndactylus_ssp
+Macaca_fascicularis_ssp
