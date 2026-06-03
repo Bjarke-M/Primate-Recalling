@@ -1,0 +1,101 @@
+Column	Description
+ID	Sample ID: ncbi ID except for PGDP samples from Kuderna. However, for historical reasons, all baboons have ncbi ID in this column
+ID_PGDP	The same as {ID} but baboons have the PGDP ID
+group	Taxonomic group; can be ‘APE’ (apes), ‘OWM’ (old world monkeys), ‘PLA’ (platyrrhines, new world monkeys), ‘TAR’ (tartsiers) or ‘STR’ (strepsirrhines, lemurs and their kin)
+family	Family
+genus	Genus
+species	Species adjective
+subspecies	Subspecies adjective or ‘ssp’ if not available / applicable
+species_full	Name in {genus}_{species}_{subspecies} format
+species_short	As above but genus abbreviated to the first letter – just to make the label shorter
+species_genotyping	Name in {genus}_{species}_ssp format as all subspecies were genotyped together
+reference	Species name of the reference species in {genus}_{species} format; only Macaca_thibetana_thibetana and Saimiri_boliviensis_boliviensis had a subspecies label
+SEX	Sex as reported in the ncbi meta information; can be ‘M’,  ‘F’ or ‘Unknown’
+len_chrA	Cumulative length of autosomal contigs (genotyped with ploidy 2 in both males and females) longer than or equal to 1 Mb
+len_chrA_contigs_shorter_than_1Mb	Cumulative length of autosomal contigs (genotyped with ploidy 2 in both males and females) shorter than 1 Mb
+len_chrX	Cumulative length of chrX contigs (genotyped with ploidy 2 in females and 1 in males) longer than or equal to 1 Mb
+len_chrX_contigs_shorter_than_1Mb	Cumulative length of chrX contigs (genotyped with ploidy 2 in females and 1 in males) shorter than 1 Mb
+len_chrY	Cumulative length of chrY contigs (genotyped with ploidy 0 in females and 1 in males) longer than or equal to 1 Mb
+len_chrY_contigs_shorter_than_1Mb	Cumulative length of chrY contigs (genotyped with ploidy 0 in females and 1 in males) shorter than 1 Mb
+total_seq_chrA	Total length of reads mapped to autosomal contigs longer than or equal to 1 Mb
+total_seq_chrX	Total length of reads mapped to chrX contigs longer than or equal to 1 Mb
+total_seq_chrY	Total length of reads mapped to chrY contigs longer than or equal to 1 Mb
+len_cov_chrA	Length of the autosomal contigs covered with at least one read
+len_cov_chrX	Length of the chrX contigs covered with at least one read
+len_cov_chrY	Length of the chrY contigs covered with at least one read
+frac_cov_chrA	Fraction of the cumulative length of autosomal contigs longer than or equal to 1 Mb covered by at least one read ({len_cov_chrA}/{len_chrA})
+frac_cov_chrX	Fraction of the cumulative length of hcrX contigs longer than or equal to 1 Mb covered by at least one read ({len_cov_chrX}/{len_chrX})
+frac_cov_chrY	Fraction of the cumulative length of chrY contigs longer than or equal to 1 Mb covered by at least one read ({len_cov_chrY}/{len_chrY})
+frac_cov_gw	Fraction of the cumulative length of all contigs longer than or equal to 1 Mb covered by at least one read
+rel_frac_cov_YX	{frac_cov_chrY} / {frac_cov_chrX}
+nonN_frac	Count of all characters but “N” in the reference genome divided by the total length of the reference genome 
+frac_cov_gw_cor	{frac_cov_gw} / {nonN_frac}
+threshold	Genus-specific lower threshold for {frac_cov_chrA} / {nonN_frac} for marking a sample as having a good fraction of the genome covered ({good_frac_cov})
+threshold_chrX	Genus-specific lower threshold for {frac_cov_chrX} / {nonN_frac} for marking a sample as having a good fraction of the genome covered ({good_frac_cov})
+good_frac_cov	Is {frac_cov_chrA} / {nonN_frac} > {threshold} and {frac_cov_chrX} / {nonN_frac} > {threshold_chrX}?
+cov_chrA	Autosomal sequencing depth defined as {total_seq_chrA}/ {len_cov_chrA}
+cov_chrX	ChrX sequencing depth defined as {total_seq_chrX}/ {len_cov_chrX}
+cov_chrY	ChrY sequencing depth defined as {total_seq_chrY}/ {len_cov_chrY}
+cov_gw	Genome-wide sequencing depth (summarised over all chromosome types above)
+rel_cov_chrX	Relative chrX coverage defined as {cov_chrX} / {cov_chrA}
+gSEX	Sex used for sex-chromosome contigs calling and genotyping; can be ‘M’ or ‘F’
+gSEX_source	Information used to define gSEX; can be a) ‘chrX’ – based on rel_cov_chrX; b) ‘chrY’ – based on rel_frac_cov_YX; c) ‘metadata’ – based on sample’s metadata; d) ‘default’ – setting to F as default if no other source is applicable
+callable_chrA	Total length of the autosomal contigs passing the callability mask (the mask is defined per {species_genotyping})
+callable_chrX	Total length of the chrX contigs passing the callability mask (the mask is defined per {species_genotyping})
+GT00_chrA	Count of 0/0 genotypes on autosomal contigs (after applying the callability mask)
+GT01_chrA	Count of 0/1 and 1/0 genotypes on autosomal contigs (after applying the callability mask)
+GT11_chrA	Count of 1/1 genotypes on autosomal contigs (after applying the callability mask)
+GTmis_chrA	Count of ./. genotypes on autosomal contigs (after applying the callability mask)
+GT00_chrX	Count of 0/0 genotypes on chrX contigs (after applying the callability mask)
+GT0_chrX	Count of 0 genotypes on chrX contigs (after applying the callability mask)
+GT01_chrX	Count of 0/1 and 1/0 genotypes on chrX contigs (after applying the callability mask)
+GT11_chrX	Count of 1/1 genotypes on chrX contigs (after applying the callability mask)
+GT1_chrX	Count of 1 genotypes on chrX contigs (after applying the callability mask)
+GTmis_chrX	Count of ./. or . Genotypes on chrX contigs (after applying the callability mask)
+het_chrA	{GT01_chrA} / {callable_chrA}
+het_chrX	{GT01_chrX} / {callable_chrX}
+rel_chrX_het	{het_chrX} / {het_chrA}
+hom_alt_chrA	{GT11_chrA} / {callable_chrA}
+hom_alt_chrX	{GT11_chrX} / {callable_chrX}
+hem_alt_chrX	{GT1_chrX} / {callable_chrX}
+rel_chrX_hom_alt	{hom_alt_chrX} / {hom_alt_chrA}
+mis_chrA	{GTmis_chrA} / {callable_chrA}
+mis_chrX	{GTmis_chrX} / {callable_chrX}
+div_chrA	{hom_alt_chrA} + 0.5 * {het_chrA}
+clade	Group of species (or a single species) with the same {div_chrA}; the idea is to pull together samples from different species that are expected to have the same divergence rate from the reference to increase sample size when defining outliers
+subclade_split	Divergence cutoff used to split a clade into subclades if structure within the clade is aparent
+sample_used_for_q	Was the sample used when edfining quartiles?
+q25_div_chrA	First quartile for {div_chrA}
+q50_div_chrA	Second quartile for {div_chrA}
+q75_div_chrA	Third quartile for {div_chrA}
+q25_frac_cov_chrA	First quartile for {frac_cov_chrA}
+q50_frac_cov_chrA	Second quartile for {frac_cov_chrA}
+q75_frac_cov_chrA	Third quartile for {frac_cov_chrA}
+zscore_div_chrA	({div_chrA} - {q50_div_chrA}) / (q75_div_chrA - q25_div_chrA)
+zscore_frac_cov_chrA	({frac_cov_chrA} - {q50_frac_cov_chrA}) / (q75_frac_cov_chrA - q25_frac_cov_chrA)
+dupl_group	All samples that are duplicated of each other belong to the same {dupl_group} which is labeled with the {ID} of the sample with the lowest missing rate out of all samples in this {dupl_group}
+remove_as_duplicate	Should the sample be removed because it has a duplicate with a lower missing rate?
+low_mis	Is {mis_chrA} < 0.01?
+low_frac_cov_qc	Is the fraction of the genome covered too low? 'fail’ if {good_frac_cov} == FALSE) or if {zscore_frac_cov_chrA} < -4 and {cov_chrA} > 20; ‘warn’ {zscore_frac_cov_chrA} < -2; otherwise  'ok'
+high_div_chrA_qc	Is the divergence too high? ‘fail’ if {zscore_div_chrA} > 4; ‘warn’ if {zscore_div_chrA} > 2; otherwise 'ok'
+high_mis_qc	Is the missing rate too high? ‘fail’ if {low_mis} == FALSE and {cov_chrA} > 20; ‘warn’ if low_mis == FALSE; otherwise 'ok'
+low_div_chrA_qc	Is the divergence too low? ‘fail’ if {zscore_div_chrA} < -4 and {cov_chrA} > 20; ‘warn’ if {zscore_div_chrA} < -3 ; otherwise 'ok'
+masterQC	QC status based on the four columns above; ‘fail’ if at least one of {high_div_chrA_qc}, {low_div_chrA_qc}, {low_frac_cov_qc}, {high_mis_qc} is ‘fail’ or if {high_div_chrA_qc} == 'warn' and {low_frac_cov_qc} == 'warn'; ‘warn’ if not set to ‘fail’ above and at least one of {high_div_chrA_qc}, {low_div_chrA_qc}, {low_frac_cov_qc}, {high_mis_qc}  is ‘warn’; otherwise 'ok'
+manual_fix	Suggestion to overwrite the value in {masterQC} after manual expection. Can be, for instance, due to low sample counts making quartiles less informative
+reason	Motivation for overwriting {masterQC} with {manual_fix}
+finalQC	Final QC status; equals {masterQC} unless overwritten by {manual_fix} or set to ‘fail’ because {remove_as_duplicate} == TRUE
+Kuderna_AB_QC	Allelic balance QC status from Kuderna et al., 2023 (only ‘FAIL’ and ‘WARN’ values present)
+Kuderna_COV_QC	Coverage QC status from Kuderna et al., 2023 (only ‘FAIL’ and ‘WARN’ values present)
+relatives	List of {ID} of the first-degree relatives of the focal sample
+remove_as_relative	Should this sample be removed if pruning the dataset for first-degree relatives according to an approach that maximises sample count after pruning?
+generation	Pedigree information: ‘P’ – parental generation; ‘F1’ or ‘F1F’ – first generation individual (offspring of ‘P’); ‘F1P’ – partner of ‘F1F’ but not an offspring of ‘P’; ‘F2’ – offspring of ‘F1’; ‘F3’ – offspring of ‘F2’
+founder	TRUE if {generation} is ‘P’ or ‘F1P’
+remove_manual	Alternative value for {remove_as_relative} based on padigree information to prioritise keeping founder individuals
+pedigree_source	Source of the pedigree information; can be a PMID of the study or ‘ncbi’ if the info is taken from the bioproject’s metadata on NCBI
+MQ1kb	Average mapping quality over all contigs longer than 1kb
+MQ1Mb	Avergae mapping quality over all contigs longer than 1Mb
+total_reads	Total number of reads in the BAM file
+mapped_reads Number of mapped reads to all contigs longer than 1kb
+properly_paired_contigs	Number of properly paired reads
+f_mapped_reads	Fraction of mapped reads {mapped_reads} / {total_reads}
+
