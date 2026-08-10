@@ -23,3 +23,5 @@ Each subdirectory contains its own README with details on contents and use.
 2. Run the main GWF workflow in `scripts/main_workflow/` to produce BAMs and joint-genotyped VCFs.
 3. Run the per-sample analyses in `scripts/annotate_sex_chr/`.
 4. Use the notebooks in `plots/` to regenerate the figures from the resulting tables.
+
+The code is released under the Creative Commons Attribution 4.0 International (CC BY 4.0) License.
